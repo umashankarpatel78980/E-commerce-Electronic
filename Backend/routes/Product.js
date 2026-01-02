@@ -9,16 +9,31 @@ import {
 
 import { protect } from "../middlewares/auth.js";
 import { authorize } from "../middlewares/Role.js";
+import upload from "../middlewares/Multer.js";
 
 const router = express.Router();
 
-/* USER & ADMIN (Login required) */
+/* USER & ADMIN */
 router.get("/", protect, getProducts);
 router.get("/:id", protect, getProductById);
 
 /* ADMIN ONLY */
-router.post("/", protect, authorize("Admin"), addProduct);
-router.put("/:id", protect, authorize("Admin"), updateProduct);
+router.post(
+  "/",
+  protect,
+  authorize("Admin"),
+  upload.array("images", 5), // 👈 THIS LINE IS REQUIRED
+  addProduct
+);
+
+router.put(
+    "/:id",
+    protect,
+    authorize("Admin"),
+    upload.array("images", 5),
+    updateProduct
+);
+
 router.delete("/:id", protect, authorize("Admin"), deleteProduct);
 
 export default router;
