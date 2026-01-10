@@ -86,21 +86,21 @@ const Dashboard = () => {
                         <h3>Quick Actions</h3>
                     </div>
                     <div className="action-buttons">
-                        <button className="action-btn primary">
+                        <button className="action-btn primary" onClick={() => navigate('/parts')}>
                             <Package size={20} />
-                            <span onClick={() => navigate('/parts')}>Add New Part</span>
+                            <span >Add New Part</span>
                         </button>
-                        <button className="action-btn info">
+                        <button className="action-btn info" onClick={() => navigate('/services')}>
                             <Wrench size={20} />
-                            <span onClick={() => navigate('/services')}>New Service</span>
+                            <span >New Service</span>
                         </button>
-                        <button className="action-btn secondary">
+                        <button className="action-btn secondary" onClick={() => navigate('/mechanics')}>
                             <Users size={20} />
-                            <span onClick={() => navigate('/mechanics')}>Add Mechanic</span>
+                            <span >Add Mechanic</span>
                         </button>
-                        <button className="action-btn accent">
+                        <button className="action-btn accent" onClick={() => navigate('/reports')}>
                             <TrendingUp size={20} />
-                            <span onClick={() => navigate('/reports')}>View Reports</span>
+                            <span >View Reports</span>
                         </button>
                     </div>
                 </div>

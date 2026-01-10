@@ -8,8 +8,14 @@ import {
 } from 'lucide-react';
 import './PartsManagement.css';
 import { brands, models, allParts, categories } from './PartsData';
+import {  useNavigate } from 'react-router-dom';
+import AddBrand from './AddBrand';
+import AddModel from './AddModel';
+import AddCategories from './AddCategories';
+import AddParts from './AddParts';
 
 const PartsManagement = () => {
+    const navigate = useNavigate();
 
     // State
     const [view, setView] = useState('brands'); // 'brands', 'models', 'categories', 'parts'
@@ -18,6 +24,9 @@ const PartsManagement = () => {
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [tractorType, setTractorType] = useState('big'); // 'small', 'big'
+    const [formOpen, setFormOpen] = useState(false);
+    const [formType, setFormType] = useState(''); // 'brand' | 'model' | 'category' | 'part'
+    const [formProps, setFormProps] = useState({});
 
     // Navigation Handlers
     const handleBrandSelect = (brand) => {
@@ -27,7 +36,7 @@ const PartsManagement = () => {
 
     const handleModelSelect = (model) => {
         setSelectedModel(model);
-        setView('parts');
+        setView('categories');
     };
 
     const handleCategorySelect = (category) => {
@@ -36,13 +45,30 @@ const PartsManagement = () => {
     };
 
     const goBack = () => {
-        if (view === 'parts') {
+  if (view === 'parts') {
+            setView('categories');
+            setSelectedCategory(null);
+        } else if (view === 'categories') {
             setView('models');
+            setSelectedCategory(null);
             setSelectedModel(null);
         } else if (view === 'models') {
             setView('brands');
             setSelectedBrand(null);
+            setSelectedModel(null);
         }
+    };
+
+    const openForm = (type, props = {}) => {
+        setFormType(type);
+        setFormProps(props);
+        setFormOpen(true);
+    };
+
+    const closeForm = () => {
+        setFormOpen(false);
+        setFormType('');
+        setFormProps({});
     };
 
     // Filter Logic
@@ -57,6 +83,11 @@ const PartsManagement = () => {
                 m.brandId === selectedBrand?.id &&
                 m.type === tractorType &&
                 m.name.toLowerCase().includes(lowerSearch)
+            );
+        }
+        if (view === 'categories') {
+            return categories.filter(c =>
+                c.name.toLowerCase().includes(lowerSearch)
             );
         }
         if (view === 'parts') {
@@ -165,15 +196,22 @@ const PartsManagement = () => {
                         {selectedBrand && (
                             <>
                                 <ChevronRight size={16} />
-                                <span onClick={() => { setView('models'); setSelectedModel(null); }} className={view === 'models' ? 'active' : 'clickable'}>{selectedBrand.name}</span>
+                                <span onClick={() => { setView('models'); setSelectedModel(null); setSelectedCategory(null); }} className={view === 'models' ? 'active' : 'clickable'}>{selectedBrand.name}</span>
                             </>
                         )}
                         {selectedModel && (
-                            <>
+                             <>
                                 <ChevronRight size={16} />
-                                <span className={view === 'parts' ? 'active' : ''}>{selectedModel.name}</span>
+                                <span onClick={() => { setView('categories'); setSelectedCategory(null); }} className={view === 'categories' ? 'active' : 'clickable'}>{selectedModel.name}</span>
                             </>
                         )}
+                        {selectedCategory && (
+                            <>
+                                <ChevronRight size={16} />
+                                <span className={view === 'parts' ? 'active' : ''}>{selectedCategory.name}</span>
+                            </>
+                        )}
+
                     </div>
                 </div>
 
@@ -202,7 +240,7 @@ const PartsManagement = () => {
                             <h2 className="section-title">Select Tractor Brand</h2>
                             <div className="filter-tabs" style={{ display: 'flex', gap: '0.5rem' }}>
                                 <button className='btn outline' onMouseEnter={e => e.target.style.backgroundColor = '#d97706'}
-                                    onMouseLeave={e => e.target.style.backgroundColor = 'transparent'}>Add Brand</button>  </div>
+                                    onMouseLeave={e => e.target.style.backgroundColor = 'transparent'} onClick={() => openForm('brand')}>Add Brand</button>  </div>
                         </div>
                         {renderBrands()}
                     </>
@@ -215,9 +253,24 @@ const PartsManagement = () => {
                             <div className="filter-tabs" style={{ display: 'flex', gap: '0.5rem' }}>
                                 <button className={`btn ${tractorType === 'small' ? 'primary' : 'outline'}`} onClick={() => setTractorType('small')}>Small Tractors</button>
                                 <button className={`btn ${tractorType === 'big' ? 'primary' : 'outline'}`} onClick={() => setTractorType('big')}>Big Tractors</button>
+                                <button className='btn outline' onMouseEnter={e => e.target.style.backgroundColor = '#d97706'}
+                                    onMouseLeave={e => e.target.style.backgroundColor = 'transparent'} onClick={() => openForm('model', { initialBrandId: selectedBrand?.id })}>Add Model</button>
                             </div>
                         </div>
                         {renderModels()}
+                    </>
+                )}
+
+                {view === 'categories' && (
+                    <>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                            <h2 className="section-title" style={{ margin: 0 }}>Select {selectedModel.name} categories</h2>
+                            <div className="filter-tabs" style={{ display: 'flex', gap: '0.5rem' }}>
+                                <button className='btn outline' onMouseEnter={e => e.target.style.backgroundColor = '#d97706'}
+                                    onMouseLeave={e => e.target.style.backgroundColor = 'transparent'} onClick={() => openForm('category', { initialModelId: selectedModel?.id })}>Add Category</button>
+                            </div>
+                        </div>
+                        {renderCategories()}
                     </>
                 )}
 
@@ -229,10 +282,27 @@ const PartsManagement = () => {
                             <h2 className="section-title" style={{ margin: 0 }}>Parts for {selectedModel.name}</h2>
                             <div className="filter-tabs" style={{ display: 'flex', gap: '0.5rem' }}>
                                 <button className='btn outline' onMouseEnter={e => e.target.style.backgroundColor = '#d97706'}
-                                    onMouseLeave={e => e.target.style.backgroundColor = 'transparent'}>Add Parts</button>  </div>
+                                    onMouseLeave={e => e.target.style.backgroundColor = 'transparent'} onClick={() => openForm('part', { initialCategoryId: selectedCategory?.id, initialModelId: selectedModel?.id })}>Add Parts</button>  </div>
                         </div>
                         {renderPartsList()}
                     </>
+                )}
+
+                {formOpen && (
+                    <div className="slide-over-backdrop" onClick={closeForm}>
+                        <div className="slide-over" onClick={e => e.stopPropagation()}>
+                            <div className="slide-over-header">
+                                <h3>{formType === 'brand' ? 'Add Brand' : formType === 'model' ? 'Add Model' : formType === 'category' ? 'Add Category' : 'Add Part'}</h3>
+                                <button className="btn outline" onClick={closeForm}>Close</button>
+                            </div>
+                            <div className="slide-over-body">
+                                {formType === 'brand' && <AddBrand {...formProps} onClose={closeForm} />}
+                                {formType === 'model' && <AddModel {...formProps} onClose={closeForm} />}
+                                {formType === 'category' && <AddCategories {...formProps} onClose={closeForm} />}
+                                {formType === 'part' && <AddParts {...formProps} onClose={closeForm} />}
+                            </div>
+                        </div>
+                    </div>
                 )}
             </div>
         </div>
