@@ -25,7 +25,11 @@ const ServiceManagement = () => {
     const initialServices = [
         { id: 'SR-1025', customer: 'Harish Verma', tractor: 'New Holland 3630', type: 'Home Service', location: 'Village Rampur', status: 'Pending', priority: 'Emergency', dateISO: '2026-01-12T09:00:00', mechanic: null },
         { id: 'SR-1024', customer: 'Rajesh Kumar', tractor: 'Mahindra Arjun 555', type: 'Shop Service', location: 'Shop', status: 'In Progress', priority: 'Normal', mechanic: 'Vikram Singh', dateISO: '2026-01-12T14:30:00' },
+<<<<<<< HEAD
         { id: 'SR-1026', customer: 'Mahesh Kumar', tractor: 'Mahindra Arjun 555', type: 'Shop Service', location: 'Shop', status: 'In Progress', priority: 'Normal', mechanic: 'Vikram Singh', dateISO: '2026-01-12T14:30:00' },
+=======
+        { id: 'SR-1024', customer: 'Mahesh Kumar', tractor: 'Mahindra Arjun 555', type: 'Shop Service', location: 'Shop', status: 'In Progress', priority: 'Normal', mechanic: 'Vikram Singh', dateISO: '2026-01-12T14:30:00' },
+>>>>>>> 1e68092921599857aa63da3033a976852032dcc4
         { id: 'SR-1023', customer: 'Suresh Singh', tractor: 'Sonalika Worldtrac 60', type: 'Home Service', location: 'District Cantt', status: 'Pending', priority: 'Normal', mechanic: null, dateISO: '2026-01-08T11:15:00' },
         { id: 'SR-1022', customer: 'Amit Patel', tractor: 'John Deere 5310', type: 'Shop Service', location: 'Shop', status: 'Completed', priority: 'Normal', mechanic: 'Rahul Verma', dateISO: '2026-01-08T16:45:00' },
         { id: 'SR-1019', customer: 'Ramesh Das', tractor: 'Sonalika 50', type: 'Home Service', location: 'Village A', status: 'Completed', priority: 'Normal', mechanic: 'Sameer Khan', dateISO: '2026-01-02T10:00:00' },

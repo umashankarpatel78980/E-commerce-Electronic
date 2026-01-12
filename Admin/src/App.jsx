@@ -13,8 +13,11 @@ import AddModel from './pages/AddModel';
 import AddCategories from './pages/AddCategories';
 import AddParts from './pages/AddParts';
 import AddServiceRequest from './pages/AddServiceRequest';
+<<<<<<< HEAD
 import AddMechanic from './pages/AddMechanic';
 import CustomerDashboard from './pages/CustomerServiceDashboard';
+=======
+>>>>>>> 1e68092921599857aa63da3033a976852032dcc4
 
 // Placeholder components for other pages
 const Placeholder = ({ title }) => (
@@ -42,11 +45,17 @@ function App() {
 
         <Route path="/services" element={<Layout title="Service Requests"><ServiceManagement /></Layout>} />
         <Route path="/add-service-request" element={<Layout><AddServiceRequest /></Layout>} />
+<<<<<<< HEAD
          <Route path="/customer-dashboard" element={<Layout><CustomerDashboard /></Layout>} />
 
         <Route path="/mechanics" element={<Layout title="Mechanics Management"><MechanicManagement /></Layout>} />
         <Route path="/add-mechanic" element={<Layout><AddMechanic /></Layout>} />
 
+=======
+        {/* <Route path="/customer-dashboard" element={<Layout><CustomerDashboard /></Layout>} />*/}
+
+        <Route path="/mechanics" element={<Layout title="Mechanics Management"><MechanicManagement /></Layout>} />
+>>>>>>> 1e68092921599857aa63da3033a976852032dcc4
         <Route path="/orders" element={<Layout title="Orders & Billing"><Orders /></Layout>} />
         <Route path="/offers" element={<Layout title="Offers & Promos"><Offers /></Layout>} />
         <Route path="/reports" element={<Layout title="Reports & Analytics"><Reports /></Layout>} />
