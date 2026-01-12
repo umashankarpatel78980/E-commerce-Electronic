@@ -20,19 +20,18 @@ const ServiceManagement = () => {
     const [statusFilter, setStatusFilter] = useState('All');
     const [dateFilter, setDateFilter] = useState('');
     const navigate = useNavigate();
+
     // Example dataset with ISO dates (replace with API data as needed)
     const initialServices = [
-        { id: 'SR-1025', customer: 'Harish Verma', tractor: 'New Holland 3630', type: 'Home Service', location: 'Village Rampur', status: 'Pending', priority: 'Emergency', dateISO: '2026-01-10T09:00:00', mechanic: null },
-        { id: 'SR-1024', customer: 'Rajesh Kumar', tractor: 'Mahindra Arjun 555', type: 'Shop Service', location: 'Shop', status: 'In Progress', priority: 'Normal', mechanic: 'Vikram Singh', dateISO: '2026-01-10T14:30:00' },
+        { id: 'SR-1025', customer: 'Harish Verma', tractor: 'New Holland 3630', type: 'Home Service', location: 'Village Rampur', status: 'Pending', priority: 'Emergency', dateISO: '2026-01-12T09:00:00', mechanic: null },
+        { id: 'SR-1024', customer: 'Rajesh Kumar', tractor: 'Mahindra Arjun 555', type: 'Shop Service', location: 'Shop', status: 'In Progress', priority: 'Normal', mechanic: 'Vikram Singh', dateISO: '2026-01-12T14:30:00' },
+        { id: 'SR-1024', customer: 'Mahesh Kumar', tractor: 'Mahindra Arjun 555', type: 'Shop Service', location: 'Shop', status: 'In Progress', priority: 'Normal', mechanic: 'Vikram Singh', dateISO: '2026-01-12T14:30:00' },
         { id: 'SR-1023', customer: 'Suresh Singh', tractor: 'Sonalika Worldtrac 60', type: 'Home Service', location: 'District Cantt', status: 'Pending', priority: 'Normal', mechanic: null, dateISO: '2026-01-08T11:15:00' },
         { id: 'SR-1022', customer: 'Amit Patel', tractor: 'John Deere 5310', type: 'Shop Service', location: 'Shop', status: 'Completed', priority: 'Normal', mechanic: 'Rahul Verma', dateISO: '2026-01-08T16:45:00' },
         { id: 'SR-1019', customer: 'Ramesh Das', tractor: 'Sonalika 50', type: 'Home Service', location: 'Village A', status: 'Completed', priority: 'Normal', mechanic: 'Sameer Khan', dateISO: '2026-01-02T10:00:00' },
         { id: 'SR-0999', customer: 'Old Customer', tractor: 'John Deere 3020', type: 'Shop Service', location: 'Shop', status: 'Completed', priority: 'Normal', mechanic: 'Rahul Verma', dateISO: '2025-12-28T13:30:00' },
     ];
     const [servicesState, setServicesState] = useState(initialServices);
-    const [showCustomerDashboard, setShowCustomerDashboard] = useState(false);
-    const [dashboardService, setDashboardService] = useState(null);
-    const [dashboardCart, setDashboardCart] = useState([]); // { partId, name, price, qty, category }
 
     const [mechanicsState, setMechanicsState] = useState([
         { name: 'Vikram Singh', skill: 'Engine Expert', status: 'Busy' },
@@ -59,12 +58,12 @@ const ServiceManagement = () => {
     useEffect(() => {
         try {
             localStorage.setItem('sm_mechanics', JSON.stringify(mechanicsState));
-        } catch (e) {}
+        } catch (e) { }
     }, [mechanicsState]);
     useEffect(() => {
         try {
             localStorage.setItem('sm_services', JSON.stringify(servicesState));
-        } catch (e) {}
+        } catch (e) { }
     }, [servicesState]);
 
     const toggleMechanicStatus = (idx) => {
@@ -78,7 +77,7 @@ const ServiceManagement = () => {
     // Date helpers
     const toDate = (iso) => new Date(iso);
     const isSameDay = (d1, d2) => d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate();
-    const getWeekStart = (d) => { const c = new Date(d); const day = c.getDay(); c.setDate(c.getDate() - day); c.setHours(0,0,0,0); return c; };
+    const getWeekStart = (d) => { const c = new Date(d); const day = c.getDay(); c.setDate(c.getDate() - day); c.setHours(0, 0, 0, 0); return c; };
     const isSameWeek = (d, ref) => getWeekStart(d).getTime() === getWeekStart(ref).getTime();
     const isSameMonth = (d, ref) => d.getFullYear() === ref.getFullYear() && d.getMonth() === ref.getMonth();
 
@@ -105,18 +104,6 @@ const ServiceManagement = () => {
     const openAssignPanel = (serviceId) => setAssigningServiceId(serviceId);
     const closeAssignPanel = () => setAssigningServiceId(null);
 
-    const openCustomerDashboard = (service) => {
-        if (!service || service.status !== 'In Progress') return;
-        setDashboardService(service);
-        // reset cart (or load existing if service.parts exists)
-        setDashboardCart(service.parts ? service.parts.map(p => ({ ...p })) : []);
-        setShowCustomerDashboard(true);
-    };
-    const closeCustomerDashboard = () => {
-        setShowCustomerDashboard(false);
-        setDashboardService(null);
-    };
-
     const parseTractor = (tractorStr) => {
         if (!tractorStr) return { brand: null, model: null };
         // try to find matching brand and model by name inclusion
@@ -129,37 +116,6 @@ const ServiceManagement = () => {
         if (!model) return [];
         return allParts.filter(p => p.modelId === model.id);
     };
-
-    const addPartToCart = (part) => {
-        setDashboardCart(prev => {
-            const idx = prev.findIndex(p => p.partId === part.id);
-            if (idx >= 0) {
-                const copy = [...prev]; copy[idx].qty += 1; return copy;
-            }
-            return [...prev, { partId: part.id, name: part.name, price: part.price, qty: 1, category: part.categoryId }];
-        });
-    };
-
-    const updateCartQty = (partId, qty) => {
-        setDashboardCart(prev => prev.map(p => p.partId === partId ? { ...p, qty: Math.max(0, qty) } : p).filter(p => p.qty > 0));
-    };
-
-    const saveCartToService = () => {
-        if (!dashboardService) return;
-        setServicesState(prev => prev.map(s => s.id === dashboardService.id ? { ...s, parts: dashboardCart } : s));
-        closeCustomerDashboard();
-    };
-
-    // Precompute modal model/parts to simplify JSX
-    let modalModel = null;
-    let modalParts = [];
-    if (showCustomerDashboard && dashboardService) {
-        const parsed = parseTractor(dashboardService.tractor);
-        modalModel = parsed.model;
-        modalParts = partsForSelectedModel(modalModel);
-    }
-
-    // mechanicsState declared later in file; use it here after declaration
 
     // Tabbed lists
     const todayServices = servicesWithDate.filter(s => isSameDay(s.dateObj, today));
@@ -195,6 +151,19 @@ const ServiceManagement = () => {
     // Available mechanics not assigned
     const availableUnassigned = useMemo(() => mechanicsState.filter(m => m.status === 'Available' && !assignedNamesSet.has(m.name)), [mechanicsState, assignedNamesSet]);
 
+    // Handle navigation to Customer Service Dashboard
+    const handleViewDetails = (service) => {
+        // Only navigate to dashboard if service is "In Progress"
+        if (service.status === 'In Progress') {
+            navigate('/customer-dashboard', {
+                state: { service }
+            });
+        } else {
+            // For other statuses, you can implement different behavior
+            alert('Service details are only available for services In Progress');
+        }
+    };
+
     return (
         <div className="service-mgmt">
             <div className="page-header">
@@ -228,7 +197,7 @@ const ServiceManagement = () => {
                         <input type="date" value={dateFilter} onChange={e => setDateFilter(e.target.value)} />
                     </div>
 
-                    <button className="btn primary" onClick={()=>Navigate("/add-service-request")}>
+                    <button className="btn primary" onClick={() => navigate("/add-service-request")}>
                         <Plus size={18} />
                         <span>New Service Request</span>
                     </button>
@@ -277,12 +246,11 @@ const ServiceManagement = () => {
                                                 <span>{service.mechanic}</span>
                                             </div>
                                         ) : (
-                                            <div style={{position: 'relative'}}>
+                                            <div style={{ position: 'relative' }}>
                                                 <button className="btn-sm primary-outline" onClick={() => openAssignPanel(service.id)}>Assign Mechanic</button>
                                                 {assigningServiceId === service.id && (
                                                     <div className="assign-panel">
                                                         <div className="assign-header">Available mechanics (today)</div>
-                                                        {/** mechanics available and not already assigned to any service */}
                                                         {(() => {
                                                             const assigned = new Set(servicesState.filter(x => x.mechanic).map(x => x.mechanic));
                                                             const candidates = mechanicsState.filter(m => m.status === 'Available' && !assigned.has(m.name));
@@ -304,7 +272,7 @@ const ServiceManagement = () => {
                                                                 </div>
                                                             ));
                                                         })()}
-                                                        <div style={{textAlign: 'right', marginTop: '0.5rem'}}>
+                                                        <div style={{ textAlign: 'right', marginTop: '0.5rem' }}>
                                                             <button className="btn-sm primary-outline" onClick={closeAssignPanel}>Close</button>
                                                         </div>
                                                     </div>
@@ -313,7 +281,15 @@ const ServiceManagement = () => {
                                         )}
                                     </div>
 
-                                    <button className="view-details" onClick={() => navigate(`/customer-dashboard`)}>
+                                    <button
+                                        className="view-details"
+                                        onClick={() => handleViewDetails(service)}
+                                        title={service.status === 'In Progress' ? 'View service details' : 'Only available for In Progress services'}
+                                        style={{
+                                            opacity: service.status === 'In Progress' ? 1 : 0.5,
+                                            cursor: service.status === 'In Progress' ? 'pointer' : 'not-allowed'
+                                        }}
+                                    >
                                         <ChevronRight size={20} />
                                     </button>
                                 </div>
@@ -346,7 +322,7 @@ const ServiceManagement = () => {
 
                     <div className="card">
                         <div className="card-header">
-                            <h3> Today Mechanics Availability</h3>
+                            <h3>Today Mechanics Availability</h3>
                         </div>
                         <div className="mechanic-list">
                             {assignedMechanics.length === 0 ? (
@@ -361,14 +337,14 @@ const ServiceManagement = () => {
                                             <span className="mech-name">{mech.name}</span>
                                             <span className="mech-skill">{mech.skill}</span>
                                         </div>
-                                        <span className={`status-dot ${(mech.status||'busy').toLowerCase()}`}></span>
+                                        <span className={`status-dot ${(mech.status || 'busy').toLowerCase()}`}></span>
                                     </div>
                                 ))
                             )}
 
                             {/* Available mechanics (not assigned) shown below assigned mechanics */}
                             {availableUnassigned.length > 0 && (
-                                <> 
+                                <>
                                     {availableUnassigned.map((mech, idx) => (
                                         <div key={`avail-${idx}`} className="mechanic-item">
                                             <div className="mech-avatar">
@@ -384,7 +360,7 @@ const ServiceManagement = () => {
                                 </>
                             )}
                         </div>
-                        <div style={{marginTop: '0.75rem', display: 'flex', justifyContent: 'space-between', gap: '0.5rem'}}>
+                        <div style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'space-between', gap: '0.5rem' }}>
                             <div>
                                 <button className="btn-sm primary-outline" onClick={() => setShowPresent(v => !v)}>{showPresent ? 'Close Present' : 'Present'}</button>
                             </div>
@@ -415,7 +391,7 @@ const ServiceManagement = () => {
 
                         {showManage && (
                             <div className="manage-panel">
-                                <div style={{display: 'flex', justifyContent: 'flex-end', marginBottom: '0.5rem'}}>
+                                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.5rem' }}>
                                     <button className="btn-sm primary-outline" onClick={() => setShowAddList(s => !s)}>{/* toggle add list */}Add Mechanics</button>
                                 </div>
                                 {typeof showAddList !== 'undefined' && showAddList && (
@@ -435,7 +411,7 @@ const ServiceManagement = () => {
                                         ))}
                                     </div>
                                 )}
-                                {mechanicsState.slice().sort((a,b) => (b.status === 'Available') - (a.status === 'Available')).map((mech, i) => (
+                                {mechanicsState.slice().sort((a, b) => (b.status === 'Available') - (a.status === 'Available')).map((mech, i) => (
                                     <div key={i} className="manage-item">
                                         <div className="mech-left">
                                             <span className="mech-name">{mech.name}</span>
@@ -450,18 +426,18 @@ const ServiceManagement = () => {
                                 ))}
                             </div>
                         )}
-                        </div>
                     </div>
+                </div>
 
-                    <div className="card promo-card">
-                        <h4>Home Service Efficiency</h4>
-                        <div className="promo-stat">
-                            <span className="value">92%</span>
-                            <span className="label">On-time Completion</span>
-                        </div>
+                <div className="card promo-card">
+                    <h4>Home Service Efficiency</h4>
+                    <div className="promo-stat">
+                        <span className="value">92%</span>
+                        <span className="label">On-time Completion</span>
                     </div>
-                </div> 
+                </div>
             </div>
+        </div>
     );
 };
 
